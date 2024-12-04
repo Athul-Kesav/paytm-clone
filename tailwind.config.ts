@@ -8,10 +8,15 @@ export default {
   ],
   theme: {
     extend: {
+      
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      fontFamily: {
+        against :['Against', 'sans-serif'],
+        montserrat: ['Montserrat', 'sans-serif'],
+      }
     },
   },
   plugins: [],
