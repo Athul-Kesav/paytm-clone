@@ -78,7 +78,7 @@ export default function () {
                 </div>
               </div>
             </div>
-            <div className="investments p-7 hidden md:flex md:flex-col md:col-span-2 border border-black hover:border-white rounded-lg">
+            <div className="investments p-7 hidden md:flex md:flex-col md:col-span-2 border border-black hover:border-white rounded-lg hover:shadow-white-glow">
               <div className="h-fit  mb-6 font-against text-3xl">
                 Investments
               </div>

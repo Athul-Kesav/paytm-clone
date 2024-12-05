@@ -8,7 +8,9 @@ export default {
   ],
   theme: {
     extend: {
-      
+      boxShadow: {
+        'white-glow': '0 0 8px 4px rgba(255, 255, 255, 0.3)',
+      },
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
