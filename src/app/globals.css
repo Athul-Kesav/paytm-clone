@@ -2,10 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
+.button {
   transition: all 0.2s ease-in;
 }
 
+.investments{
+  transition: all 0.2s ease-in;
+}
 
 :root {
   --background: #ffffff;

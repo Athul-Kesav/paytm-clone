@@ -2,30 +2,69 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import SignupPic from "@/images/SignupPic.jpg"; // Importing Heroicons for exclamation mark
+import SignupPic from "@/images/SignupPic.jpg"; 
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function Signup() {
   // State to track input values
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(""); // To store error message
+  const router = useRouter();
 
   // Handle password match check
   const passwordMismatch = password !== confirmPassword;
 
   // Handle signup form submission
-  function signup() {
-    // Check if passwords match
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return; // Stop further execution if passwords don't match
-    }
+  async function signup() {
 
-    setError(""); // Clear any previous error
-    console.log("Signup successful");
-    // Proceed with the signup process (e.g., API call)
+    setError(""); // Clear any previous error message
+    // Check if fields are empty
+    if (email === "" || password === "" || confirmPassword === "" || username === "") {
+      setError("Please fill all the fields");
+      return;
+    }
+  
+    // Check if passwords match
+    if (passwordMismatch) {
+      setError("Passwords do not match");
+      return;
+    }
+  
+    try {
+      // Send signup request
+      const response = await axios.post("http://localhost:3000/api/user/signup", {
+        email: email,
+        password: password,
+        userName: username,
+      });
+  
+      // If the response is successful, clear error and log success
+      setError(""); // Clear any previous error message
+      console.log("Signup successful");
+      router.push("/user/dashboard"); // Redirect to dashboard
+    } catch (error: any) {
+      // Handle different error status codes
+      if (error.response) {
+        // Response was received but indicates an error
+        const status = error.response.status;
+        if (status === 409) {
+          setError("Email is already in use");
+        } else if (status === 400) {
+          setError("Please enter a valid Email address and make sure the password is at least 8 characters long");
+        } else {
+          setError("Something went wrong. Please try again later");
+        }
+      } else {
+        // No response or other unexpected errors
+        setError("Unable to connect to the server. Please try again later.");
+      }
+    }
   }
+  
 
   return (
     <>
@@ -45,6 +84,15 @@ export default function Signup() {
             Signup
           </div>
           <div className="flex flex-col w-1/2 text-zinc-300 font-montserrat gap-3">
+          <span>
+              Username
+              <input
+                type="email"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full p-2 rounded-lg focus:outline-none text-mono focus:text-black font-montserrat focus:bg-zinc-300 bg-black focus:border-2 border-zinc-300 text-zinc-300 focus:border-black border"
+              />
+            </span>
             <span>
               Email
               <input
@@ -78,14 +126,15 @@ export default function Signup() {
               )}
             </span>
             {error && (
-              <div className="text-red-500 text-sm">{error}</div> // Display error message
+              <div className="text-red-300 text-sm">{error}</div> // Display error message
             )}
             <span className="text-right">
+              Already a user?  
               <a
-                href="#"
-                className="text-gray-400 text-center hover:text-white"
+                href="/login"
+                className="text-red-300 hover:text-white px-1"
               >
-                Forgot Password?
+                Signin
               </a>
             </span>
           </div>
