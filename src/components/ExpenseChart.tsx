@@ -1,9 +1,26 @@
-import { Chart } from "chart.js/auto";
+"use client";
+
+import { Chart, ChartData, ChartOptions } from "chart.js/auto";
 import { useEffect, useRef } from "react";
 
 export default function DoughnutChart() {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstanceRef = useRef<Chart | null>(null);
+
+  // Initial background color array for the chart
+  const initialColor = [
+    "#d4d4d875",
+    "#d4d4d855",
+    "#d4d4d835",
+    "#d4d4d815",
+    "#d4d4d805",
+  ];
+
+    const dataLength = 5;
+    const maxDataLength = 40;
+  const cutoutPercentage = 75 + (dataLength / maxDataLength) * 10;
+  const borderWidth = 2 + (dataLength / maxDataLength) * 2;
+  const arcSpacing = (borderWidth / (cutoutPercentage / 100)) * 10;
 
   useEffect(() => {
     if (chartRef.current) {
@@ -14,33 +31,63 @@ export default function DoughnutChart() {
         chartInstanceRef.current.destroy();
       }
 
+      // Explicitly typecast the chart data to provide better type inference
+      const chartData: ChartData = {
+        labels: ["Food", "Clothing", "Rent", "Utilities", "Others"],
+        datasets: [
+          {
+            label: "Expenses",
+            data: [20, 10, 30, 40, 10],
+            backgroundColor: initialColor,
+            borderColor: "#FFFFFF75",
+            borderWidth: borderWidth,
+            pointBorderColor: "black",
+            borderRadius: 7, // Add rounded corners
+            spacing: arcSpacing, // Add padding between the bars
+            hoverBackgroundColor: [
+                "#d8b4fe",
+                "#fdba74",
+                "#93c5fd",
+                "#fda4af",
+                "#d4d4d8",
+            ],
+            hoverBorderColor: "#fafafa",
+            
+          },
+        ],
+      };
+
       // Create a new Chart.js instance
       chartInstanceRef.current = new Chart(context, {
         type: "doughnut",
-        data: {
-          labels: ["Food", "Clothing", "Rent", "Utilities", "Others"],
-          datasets: [
-            {
-              label: "Expenses",
-              data: [20, 10, 30, 40, 10],
-              backgroundColor: [
-                "#FF638450",
-                "#36A2EB50",
-                "#FFCE5650",
-                "#4BC0C050",
-                "#9966FF50",
-              ],
-              borderColor: [
-                "#FF6384",
-                "#36A2EB",
-                "#FFCE56",
-                "#4BC0C0",
-                "#9966FF",
-              ],
-              borderWidth: 1,
+        data: chartData,
+        options: {
+          responsive: true,
+          plugins: {
+            tooltip: {
+              enabled: true,
             },
-          ],
-        },
+            legend: {
+                position: "right", // Moves the legend to the bottom
+                padding: {
+                top: 10,
+                bottom: 10,
+                left: 50,
+                right: 50,
+                }, // Add padding to the legend
+            },
+          },
+          cutout: `${cutoutPercentage}%`, // Increase for a larger gap in the center
+          animation: {
+            duration: 1000,
+            easing: "easeInOutCubic",
+          },
+          elements: {
+            arc: {
+              borderWidth: 10, // Add gap by increasing the border width
+            },
+          },
+        } as ChartOptions,
       });
     }
 
