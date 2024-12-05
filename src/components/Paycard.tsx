@@ -22,7 +22,7 @@ export default function Paycard({ text, img, onClick }: PaycardProps) {
             className="grayscale contrast-125"
           />
         </div>
-        <div className="hover:bg-zinc-300 font-montserrat text-xl p-2 text-center hover:text-black group-hover:text-black group-hover:bg-zinc-300 ">{text}</div>
+        <div className="hover:bg-zinc-300 font-montserrat text-xl p-2 text-center hover:text-black group-hover:text-black group-hover:bg-zinc-300 rounded-b-lg">{text}</div>
       </div>
     </>
   );

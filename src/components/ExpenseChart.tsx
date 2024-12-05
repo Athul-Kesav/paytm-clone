@@ -18,9 +18,9 @@ export default function DoughnutChart() {
 
     const dataLength = 5;
     const maxDataLength = 40;
-  const cutoutPercentage = 75 + (dataLength / maxDataLength) * 10;
+  const cutoutPercentage = 35 + (dataLength / maxDataLength) * 10;
   const borderWidth = 2 + (dataLength / maxDataLength) * 2;
-  const arcSpacing = (borderWidth / (cutoutPercentage / 100)) * 10;
+  const arcSpacing = (borderWidth / (cutoutPercentage / 100)) + 5;
 
   useEffect(() => {
     if (chartRef.current) {
@@ -40,9 +40,8 @@ export default function DoughnutChart() {
             data: [20, 10, 30, 40, 10],
             backgroundColor: initialColor,
             borderColor: "#FFFFFF75",
-            borderWidth: borderWidth,
-            pointBorderColor: "black",
-            borderRadius: 7, // Add rounded corners
+            borderWidth: 1,
+            borderRadius: 25, // Add rounded corners
             spacing: arcSpacing, // Add padding between the bars
             hoverBackgroundColor: [
                 "#d8b4fe",
@@ -75,6 +74,12 @@ export default function DoughnutChart() {
                 left: 50,
                 right: 50,
                 }, // Add padding to the legend
+                font: {
+                    family: "Montserrat, sans-serif", // Use Montserrat font family
+                    size: 20,                          // Font size
+                    weight: '600 !important',                     // Font weight
+                    style: 'normal',                    // Font style
+                  },
             },
           },
           cutout: `${cutoutPercentage}%`, // Increase for a larger gap in the center
