@@ -7,6 +7,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import electricity from "@/images/electricity.jpg";
+import insurance from "@/images/insurance.jpg";
+import gas from "@/images/gas.jpg";
+import mobile from "@/images/mobile.jpg";
 
 interface User {
   email: string;
@@ -105,13 +108,24 @@ export default function () {
               </div>
             </div>
           </div>
-          <div className=" flex row-span-3 bg-blue-300 md:grid md:grid-cols-2 gap-3">
-            <div className=" flex flex-col h-auto w-auto md:col-span-1 bg-red-300 p-7">
-                <div className="h-auto mb-6 font-against text-2xl bg-black">
+          <div className=" flex row-span-3 md:grid md:grid-cols-2 gap-3 ">
+            <div className=" flex flex-col h-auto w-auto md:col-span-1 p-7 border border-zinc-300 rounded-lg">
+                <div className="h-auto mb-6 font-against text-2xl">
                     Quick Pay
                 </div>
-                <div className="grid grid-cols-2 grid-rows-2">
-                    
+                <div className="grid grid-cols-2 grid-rows-2 w-full h-full gap-3">
+                    <div className="col-span-1 row-span-1 flex">
+                        <Paycard text="Electricity" img={electricity} onClick={makePayment} />
+                    </div>
+                    <div className="col-span-1 row-span-1 flex">
+                        <Paycard text="Insurance" img={insurance} onClick={makePayment} />
+                    </div>
+                    <div className="col-span-1 row-span-1 flex">
+                        <Paycard text="LPG" img={gas} onClick={makePayment} />
+                    </div>
+                    <div className="col-span-1 row-span-1 flex">
+                        <Paycard text="Recharge" img={mobile} onClick={makePayment} />
+                    </div>
                 </div>
             </div>
             <div className=" flex flex-col h-auto w-auto md:col-span-1 bg-zinc-300"></div>
