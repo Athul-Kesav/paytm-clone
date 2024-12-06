@@ -52,6 +52,25 @@ export async function POST(req: NextRequest) {
             maxAge: 60 * 60 * 24 * 7, // 7 days
             sameSite: "strict", // CSRF protection
         })
+
+        response.cookies.set("username", JSON.stringify(user.userName) , {
+            httpOnly: false,
+            path: "/", // Root path
+            maxAge: 60 * 60 * 24 * 7, // 7 days
+            sameSite: "strict", // CSRF protection
+        })
+
+        response.cookies.set("userID", JSON.stringify(user.id) , {
+            httpOnly: false,
+            path: "/", // Root path
+            maxAge: 60 * 60 * 24 * 7, // 7 days
+            sameSite: "strict", // CSRF protection
+        })
+
+        response.cookies.set("balance", JSON.stringify(user.currBal) , {
+            httpOnly: false,
+        })
+
         return response;
     } catch (error) {
         return NextResponse.json({ error: "Something went wrong." }, { status: 500 });
