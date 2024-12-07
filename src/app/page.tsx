@@ -30,10 +30,10 @@ export default function Home() {
         Welcome to Pay-Tee-Yem
       </div>
       <div className="flex justify-between text-black font-montserrat ">
-        <span className="m-5">
+        <span className="m-5 hover:shadow-white-glow rounded-lg">
           <Button text="Login" onClick={login} />
         </span>
-        <span className="m-5">
+        <span className="m-5 hover:shadow-white-glow rounded-lg">
           <Button text="Signup" onClick={signup} />
         </span>
       </div>

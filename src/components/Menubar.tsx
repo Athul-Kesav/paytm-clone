@@ -38,7 +38,7 @@ export default function() {
                 <li onClick={() => {
                   window.location.href = "/user/dashboard";
                   console.log(Cookies.get("userName"));
-                }} className="flex items-center py-2 gap-3 group hover:shadow-white-glow px-2 border border-black hover:border hover:border-white rounded-md cursor-pointer">
+                }} className="flex items-center py-2 gap-3 group hover:shadow-white-glow px-2 border border-[#171717] hover:border hover:border-white rounded-md cursor-pointer">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -52,7 +52,7 @@ export default function() {
                 </li>
                 <li onClick={() => {
                   window.location.href = "/user/transactions";
-                }} className="flex items-center py-2 gap-3 group hover:shadow-white-glow px-2 border border-black hover:border hover:border-white rounded-md cursor-pointer">
+                }} className="flex items-center py-2 gap-3 group hover:shadow-white-glow px-2 border border-[#171717] hover:border hover:border-white rounded-md cursor-pointer">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -69,7 +69,7 @@ export default function() {
                 </li>
                 <li onClick={() => {
                   window.location.href = "/user/settings";
-                }} className="flex items-center py-2 gap-3 group hover:shadow-white-glow px-2 border border-black hover:border hover:border-white rounded-md cursor-pointer">
+                }} className="flex items-center py-2 gap-3 group hover:shadow-white-glow px-2 border border-[#171717] hover:border hover:border-white rounded-md cursor-pointer">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -80,7 +80,7 @@ export default function() {
                   </svg>
                   <a>Settings</a>
                 </li>
-                <li onClick={logout} className="flex items-center py-2 gap-3 group hover:shadow-white-glow px-2 border border-black hover:border hover:border-white rounded-md cursor-pointer">
+                <li onClick={logout} className="flex items-center py-2 gap-3 group hover:shadow-white-glow px-2 border border-[#171717] hover:border hover:border-white rounded-md cursor-pointer">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
