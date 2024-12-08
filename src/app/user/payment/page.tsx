@@ -1,46 +1,86 @@
 "use client";
-import Menubar from "@/components/Menubar";
-import axios from "axios";
+
 import { useEffect, useState } from "react";
-import Cookies from "js-cookie";
+import Menubar from "@/components/Menubar";
+import AlertBox from "@/components/AlertBox";
 import Button from "@/components/Button";
-// Define the type of contact
+import axios, { AxiosError } from "axios";
+import Cookies from "js-cookie";
+import { parse } from "path";
+
 interface Contact {
   id: number;
   userName: string;
 }
+
 export default function ContactPage() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [amnt, setAmnt] = useState<number>(0);
+  const [alert, setAlert] = useState({
+    visible: false,
+    text: "",
+    type: "error" as "success" | "error" | "warning" | "inputBox",
+  });
+
+  const showAlert = (text: string, type: "success" | "error" | "warning") => {
+    setAlert({ visible: true, text, type });
+  };
+
+  const closeAlert = () => {
+    setAlert({ ...alert, visible: false });
+  };
 
   useEffect(() => {
     const fetchContacts = async () => {
       try {
-        const response = await axios.get<Contact[]>("/api/contacts");
+        const response = await axios.post<Contact[]>("/api/contacts", {
+          data: {
+            id: Cookies.get("userID"),
+          },
+        });
         setContacts(response.data);
       } catch (error) {
+        showAlert("Failed to fetch contacts!", "error");
         console.error("Error fetching contacts:", error);
       }
     };
+
     fetchContacts();
   }, []);
 
-  function sendMoney() {
-    //Check balance
+  async function sendMoney() {
     const balance = parseFloat(Cookies.get("balance") ?? "0");
-    if (amnt > balance) {
-      alert("Insufficient balance");
-      return;
-    }
-    //Get Pin Confirmation
-    const pin = prompt("Enter your pin");
-    if (pin === null) {
-      return;
-    }
-    //Send the money
-    console.log("Sending money to", selectedContact?.userName, "Amount:", amnt);
 
+    if (amnt > balance) {
+      showAlert("Insufficient balance!", "error");
+      return;
+    }
+
+    const pinPrompt = prompt("Enter your pin");
+    if (!pinPrompt) return;
+    const pin = parseInt(pinPrompt);
+    //Check if pin is correct and make transaction
+    const userID = parseInt(Cookies.get("userID") ?? "0");
+    try{
+      const response = await axios
+      .post("/api/user/transaction", {
+        id: userID,
+        amount: amnt,
+        contactId: selectedContact?.id,
+        pin: pin,
+      })
+      .then(() => {
+        showAlert(`₹${amnt} sent to ${selectedContact?.userName}!`, "success");
+        Cookies.set("balance", (balance - amnt).toString());
+      })
+    }catch(error: any){
+      showAlert(error.response.data.message, "error");
+      return;
+    }
+    //showAlert(response.data.message, "success");
+
+    console.log("Sent money to", selectedContact?.userName, "Amount:", amnt);
   }
 
   return (
@@ -52,9 +92,9 @@ export default function ContactPage() {
         </div>
 
         {/* Contacts Section */}
-        <div className=" col-span-2 h-full w-full rounded-lg flex flex-col p-7 overflow-hidden">
+        <div className="col-span-2 h-full w-full rounded-lg flex flex-col p-7 overflow-hidden">
           <div className="text-4xl font-montserrat mb-4">Contacts</div>
-          <div className="flex justify-between">
+          <div className="flex justify-between mb-4">
             <input
               type="text"
               placeholder="Search contacts"
@@ -78,20 +118,18 @@ export default function ContactPage() {
             </button>
           </div>
           <div className="flex flex-col gap-3 overflow-y-auto">
-            {/* Display the contacts */}
-            {contacts.length === 0 && (
+            {contacts.length === 0 ? (
               <div className="text-lg font-mono text-zinc-300">
                 No contacts found
               </div>
-            )}
-            {contacts.map((contact) => (
-              <div
-                key={contact.id}
-                onClick={() => setSelectedContact(contact)}
-                className="flex justify-between items-center p-3 border-b border-zinc-300 cursor-pointer group"
-              >
-                <div className="flex items-center">
-                  <div className="text-lg font-mono inline-flex">
+            ) : (
+              contacts.map((contact) => (
+                <div
+                  key={contact.id}
+                  onClick={() => setSelectedContact(contact)}
+                  className="flex justify-between items-center p-3 border-b border-zinc-300 cursor-pointer group"
+                >
+                  <div className="flex items-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
@@ -109,20 +147,16 @@ export default function ContactPage() {
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
-        {/* Blue Section */}
-        <div className=" col-span-4 h-full w-full rounded-lg p-4 flex flex-col align-middle border border-zinc-700">
-          {selectedContact === null && (
-            <div className="text-3xl font-against">
-              Transaction <br />
-              Details
-            </div>
-          )}
-          {selectedContact !== null && (
+        {/* Transaction Section */}
+        <div className="col-span-4 h-full w-full rounded-lg p-4 flex flex-col align-middle border border-zinc-700">
+          {selectedContact === null ? (
+            <div className="text-3xl font-against">Transaction Details</div>
+          ) : (
             <div className="grid grid-rows-7 w-full h-full">
               <div className="row-span-1 p-4">
                 <span className="text-3xl font-against">
@@ -131,37 +165,41 @@ export default function ContactPage() {
               </div>
               <div className="row-span-5 grid grid-rows-4 h-full w-auto mx-24 rounded-lg border-zinc-400 border p-7">
                 <div className="row-span-1 h-full w-auto font-montserrat justify-center flex flex-col border-b-2 border-zinc-400">
-                  <div className="text-green-300">
-                    Current Balance :
-                    <span className="font-montserrat"> ₹ </span>
-                    <span className="font-against">
+                  <div className="text-green-300 text-xl">
+                    Current Balance:
+                    <span className="font-montserrat text-xl"> ₹ </span>
+                    <span className="font-against text-xl">
                       {Cookies.get("balance")}
                     </span>
                   </div>
                 </div>
-                <div className="row-span-2 h-full w-auto font-montserrat justify-center flex flex-col items-center ">
-                <span className="text-2xl font-against">Amount to send : </span>
-                  <div>
-                    <span className="font-montserrat">₹</span>
-                    <span>
-                      <input
-                        type="number"
-                        placeholder="Enter amount"
-                        className="bg-[#171717] text-red-300 font-mono p-2 rounded-md focus:outline-none mx-2"
-                        value={isNaN(amnt) ? "" : amnt}
-                        onChange={(e) => setAmnt(parseFloat(e.target.value))}
-                      />
-                    </span>
-                  </div>
+                <div className="row-span-2 h-full w-auto font-montserrat justify-center flex flex-col items-center">
+                  <span className="text-2xl font-against">Amount to send:</span>
+                  <input
+                    type="number"
+                    placeholder="Enter amount"
+                    className="bg-[#171717] text-red-300 font-mono p-2 rounded-md focus:outline-none mx-2 text-xl"
+                    value={isNaN(amnt) ? "" : amnt}
+                    onChange={(e) => setAmnt(parseFloat(e.target.value))}
+                  />
                 </div>
                 <div className="row-span-1 h-full w-auto font-montserrat justify-center flex py-8">
-                  <Button text={`Send to ${selectedContact.userName}`} onClick={sendMoney} width="full"/>
-                  </div>
+                  <Button
+                    text={`Send to ${selectedContact.userName}`}
+                    onClick={sendMoney}
+                    width="full"
+                  />
+                </div>
               </div>
             </div>
           )}
         </div>
       </div>
+
+      {/* AlertBox */}
+      {alert.visible && (
+        <AlertBox text={alert.text} type={alert.type} onClick={closeAlert} />
+      )}
     </>
   );
 }
