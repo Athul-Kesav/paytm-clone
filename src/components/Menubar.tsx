@@ -3,10 +3,17 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 import AlertBox from "./AlertBox";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function () {
-  const username = Cookies.get("userName");
+  const [username, setUsername] = useState<string>("");
+
+  useEffect(() => {
+    const username = Cookies.get("username");
+    const decodedUser = decodeURIComponent(username || ""); // Decode URL-encoded string
+      const cleanUsername = decodedUser.replace(/^"|"$/g, ""); // Remove surrounding quotes
+      setUsername(cleanUsername);
+  }, []);
 
   const [alert, setAlert] = useState({
     visible: false,
@@ -48,7 +55,7 @@ export default function () {
               clipRule="evenodd"
             />
           </svg>
-          <span className="px-3">{username}</span>
+          <span className="px-3">{username.split(" ")[0]}</span>
         </div>
         <div className="flex flex-col gap-1">
           <ul className="font-montserrat text-md text-zinc-300 gap-3 flex flex-col py-7">

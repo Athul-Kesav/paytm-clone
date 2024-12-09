@@ -7,6 +7,7 @@ import Button from "@/components/Button";
 import axios, { AxiosError } from "axios";
 import Cookies from "js-cookie";
 import { parse } from "path";
+import Loading from "@/app/loading";
 
 interface Contact {
   id: number;
@@ -17,6 +18,7 @@ export default function ContactPage() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [amnt, setAmnt] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState({
     visible: false,
     text: "",
@@ -40,6 +42,7 @@ export default function ContactPage() {
           },
         });
         setContacts(response.data);
+        setLoading(false);
       } catch (error) {
         showAlert("Failed to fetch contacts!", "error");
         console.error("Error fetching contacts:", error);
@@ -62,19 +65,22 @@ export default function ContactPage() {
     const pin = parseInt(pinPrompt);
     //Check if pin is correct and make transaction
     const userID = parseInt(Cookies.get("userID") ?? "0");
-    try{
+    try {
       const response = await axios
-      .post("/api/user/transaction", {
-        id: userID,
-        amount: amnt,
-        contactId: selectedContact?.id,
-        pin: pin,
-      })
-      .then(() => {
-        showAlert(`₹${amnt} sent to ${selectedContact?.userName}!`, "success");
-        Cookies.set("balance", (balance - amnt).toString());
-      })
-    }catch(error: any){
+        .post("/api/user/transaction", {
+          id: userID,
+          amount: amnt,
+          contactId: selectedContact?.id,
+          pin: pin,
+        })
+        .then(() => {
+          showAlert(
+            `₹${amnt} sent to ${selectedContact?.userName}!`,
+            "success"
+          );
+          Cookies.set("balance", (balance - amnt).toString());
+        });
+    } catch (error: any) {
       showAlert(error.response.data.message, "error");
       return;
     }
@@ -118,11 +124,16 @@ export default function ContactPage() {
             </button>
           </div>
           <div className="flex flex-col gap-3 overflow-y-auto">
-            {contacts.length === 0 ? (
+            {loading ? (
+              // Case: Loading, regardless of whether there are contacts or not
+              <Loading width="full"/>
+            ) : contacts.length === 0 ? (
+              // Case: No contacts and not loading
               <div className="text-lg font-mono text-zinc-300">
                 No contacts found
               </div>
             ) : (
+              // Case: Contacts exist and not loading
               contacts.map((contact) => (
                 <div
                   key={contact.id}

@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
         // Assuming you have a way to get the current user's ID or username
         
         const currentUser = await req.json()// Default to NaN if userId is not defined or cannot be parsed
-        console.log(currentUser.data.id);
+        //console.log(currentUser.data.id);
         const currentUserID = parseInt(currentUser.data.id);
         if (!currentUser) {
             return Response.json({ error: "User not found" }, { status: 404 });

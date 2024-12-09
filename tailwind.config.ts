@@ -18,7 +18,11 @@ export default {
       fontFamily: {
         against :['Against', 'sans-serif'],
         montserrat: ['Montserrat', 'sans-serif'],
-      }
+      },
+      animation: {
+        spin: "spin 1s linear infinite", // Fast spin
+        'spin-slow': "spin 2s linear infinite", // Slow spin
+      },
     },
   },
   plugins: [],
