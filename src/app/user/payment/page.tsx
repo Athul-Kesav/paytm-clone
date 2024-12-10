@@ -137,12 +137,12 @@ export default function ContactPage() {
     <>
       <div className="grid grid-cols-7 gap-3 h-screen w-screen p-4 overflow-hidden">
         {/* Sidebar */}
-        <div className="hidden col-span-1 p-4 rounded-lg md:flex md:flex-col md:justify-between border border-zinc-300">
+        <div className="hidden col-span-1 p-4 rounded-lg lg:flex md:flex-col md:justify-between border border-zinc-300">
           <Menubar />
         </div>
 
         {/* Contacts Section */}
-        <div className="col-span-2 h-full w-full rounded-lg flex flex-col p-7 overflow-hidden">
+        <div className="lg:col-span-2 col-span-3 h-full w-full rounded-lg md:flex flex-col p-7 overflow-y-auto hidden">
           <div className="text-4xl font-montserrat mb-4">Contacts</div>
           <div className="flex justify-between mb-4">
             <input
@@ -208,23 +208,24 @@ export default function ContactPage() {
         </div>
 
         {/* Transaction Section */}
-        <div className="col-span-4 h-full w-full rounded-lg p-4 flex flex-col align-middle border border-zinc-700">
+        <div className=" md:col-span-4 col-span-full h-full w-auto rounded-lg p-4 flex flex-col align-middle border border-zinc-700">
           {selectedContact === null ? (
             <div className="text-3xl font-against">Transaction Details</div>
           ) : (
-            <div className="grid grid-rows-7 w-full h-full">
-              <div className="row-span-1 p-4">
-                <span className="text-3xl font-against">
+            <div className="grid grid-rows-7 w-full h-full grid-cols-2">
+              <div className="row-span-1 col-span-2 p-4 flex ">
+                <span className="text-2xl font-against md:text-3xl">
                   {selectedContact.userName}
                 </span>
               </div>
-              <div className="row-span-5 grid grid-rows-4 h-full w-auto mx-24 rounded-lg border-zinc-400 border p-7">
+              <div className="row-span-5 col-span-2 grid grid-rows-4 h-full w-auto mx-24 rounded-lg border-zinc-400 border p-7">
                 <div className="row-span-1 h-full w-auto font-montserrat justify-center flex flex-col border-b-2 border-zinc-400">
-                  <div className="text-green-300 text-xl">
+                  <div className="text-green-300 text-md md:text-xl flex-col flex text-wrap">
                     Current Balance:
-                    <span className="font-montserrat text-xl"> ₹ </span>
-                    <span className="font-against text-xl">
+                    <span className="font-montserrat"> ₹ 
+                    <span className="font-against">
                       {Cookies.get("balance")}
+                    </span>
                     </span>
                   </div>
                 </div>

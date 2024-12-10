@@ -6,6 +6,7 @@ import jwt, { Secret } from "jsonwebtoken";
 const SECRET_KEY = process.env.JWT_SECRET as Secret;
 
 export async function middleware(req: NextRequest) {
+  console.log("Middleware executed");
   try {
     // Extract the token from cookies or authorization header
     const token = req.cookies.get("token")?.value;
