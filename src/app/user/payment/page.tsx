@@ -4,9 +4,8 @@ import { useEffect, useState } from "react";
 import Menubar from "@/components/Menubar";
 import AlertBox from "@/components/AlertBox";
 import Button from "@/components/Button";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import Cookies from "js-cookie";
-import { parse } from "path";
 import Loading from "@/app/loading";
 
 interface Contact {
@@ -14,19 +13,49 @@ interface Contact {
   userName: string;
 }
 
+type AlertState =
+  | {
+      visible: boolean;
+      text: string;
+      type: "success" | "error" | "warning";
+      onClick?: () => void; // `onClick` is required for these types
+      onChange?: never; // `onChange` is not needed for these types
+    }
+  | {
+      visible: boolean;
+      text: string;
+      type: "inputBox";
+      onClick?: () => void; // `onClick` is required for inputBox
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; // `onChange` is required for inputBox
+    };
+
 export default function ContactPage() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [amnt, setAmnt] = useState<number>(0);
   const [loading, setLoading] = useState(true);
-  const [alert, setAlert] = useState({
+  const [pin, setPin] = useState<number>(0);
+  const [pinConfirmed, setPinConfirmed] = useState(false); // Track if PIN is confirmed
+  const [alert, setAlert] = useState<AlertState>({
     visible: false,
     text: "",
-    type: "error" as "success" | "error" | "warning" | "inputBox",
+    type: "success", // default type
+    onClick: () => {},
   });
 
-  const showAlert = (text: string, type: "success" | "error" | "warning") => {
-    setAlert({ visible: true, text, type });
+  const showAlert = (
+    text: string,
+    type: "success" | "error" | "warning" | "inputBox",
+    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void // Optional parameter
+  ) => {
+    if (type === "inputBox") {
+      if (!onChange) {
+        throw new Error("onChange is required when type is 'inputBox'");
+      }
+      setAlert({ visible: true, text, type, onChange });
+    } else {
+      setAlert({ visible: true, text, type });
+    }
   };
 
   const closeAlert = () => {
@@ -44,7 +73,7 @@ export default function ContactPage() {
         setContacts(response.data);
         setLoading(false);
       } catch (error) {
-        showAlert("Failed to fetch contacts!", "error");
+        showAlert("Failed to fetch contacts!", "error", closeAlert);
         console.error("Error fetching contacts:", error);
       }
     };
@@ -53,6 +82,7 @@ export default function ContactPage() {
   }, []);
 
   async function sendMoney() {
+    console.log("sending money"); // Debugging
     const balance = parseFloat(Cookies.get("balance") ?? "0");
 
     if (amnt > balance) {
@@ -60,33 +90,47 @@ export default function ContactPage() {
       return;
     }
 
-    const pinPrompt = prompt("Enter your pin");
-    if (!pinPrompt) return;
-    const pin = parseInt(pinPrompt);
-    //Check if pin is correct and make transaction
-    const userID = parseInt(Cookies.get("userID") ?? "0");
-    try {
-      const response = await axios
-        .post("/api/user/transaction", {
-          id: userID,
-          amount: amnt,
-          contactId: selectedContact?.id,
-          pin: pin,
-        })
-        .then(() => {
-          showAlert(
-            `₹${amnt} sent to ${selectedContact?.userName}!`,
-            "success"
-          );
-          Cookies.set("balance", (balance - amnt).toString());
-        });
-    } catch (error: any) {
-      showAlert(error.response.data.message, "error");
+    if (amnt <= 0) {
+      showAlert("Invalid amount!", "error");
       return;
     }
-    //showAlert(response.data.message, "success");
 
-    console.log("Sent money to", selectedContact?.userName, "Amount:", amnt);
+    try {
+      // Wait for the user to enter the PIN and confirm
+      // Wait for PIN confirmation
+      console.log("in the try block"); // Debugging
+      //if (!pinConfirmed) return; // Abort if PIN wasn't confirmed
+      console.log("pin confirmed"); // Debugging
+
+      setLoading(true);
+      console.log("loading"); // Debugging
+      const userID = parseInt(Cookies.get("userID") ?? "0");
+
+      const response = await axios.post("/api/user/transaction", {
+        id: userID,
+        amount: amnt,
+        contactId: selectedContact?.id,
+        pin: pin, // Use the confirmed PIN here
+      });
+
+      console.log("request sent"); // Debugging
+
+      // Success alert
+      showAlert(
+        `₹${amnt} sent to ${selectedContact?.userName}!`,
+        "success",
+        closeAlert
+      );
+      Cookies.set("balance", (balance - amnt).toString());
+    } catch (error: any) {
+      // Error alert
+      showAlert(
+        error.response?.data?.message || "Transaction failed!",
+        "error"
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -126,7 +170,7 @@ export default function ContactPage() {
           <div className="flex flex-col gap-3 overflow-y-auto">
             {loading ? (
               // Case: Loading, regardless of whether there are contacts or not
-              <Loading width="full"/>
+              <Loading width="full" />
             ) : contacts.length === 0 ? (
               // Case: No contacts and not loading
               <div className="text-lg font-mono text-zinc-300">
@@ -197,7 +241,24 @@ export default function ContactPage() {
                 <div className="row-span-1 h-full w-auto font-montserrat justify-center flex py-8">
                   <Button
                     text={`Send to ${selectedContact.userName}`}
-                    onClick={sendMoney}
+                    onClick={() => {
+                      // Reset the PIN and confirmation state
+                      setPin(0);
+                      setPinConfirmed(false);
+
+                      // Wait for the PIN confirmation
+
+                      setAlert({
+                        visible: true,
+                        text: "Enter your PIN",
+                        type: "inputBox",
+                        onChange: (e) => setPin(parseInt(e.target.value) || 0),
+                        onClick: () => {
+                          setPinConfirmed(true); // Set confirmation state
+                          closeAlert(); // Close alert box
+                        },
+                      });
+                    }}
                     width="full"
                   />
                 </div>
@@ -209,7 +270,32 @@ export default function ContactPage() {
 
       {/* AlertBox */}
       {alert.visible && (
-        <AlertBox text={alert.text} type={alert.type} onClick={closeAlert} />
+        <AlertBox
+          text={alert.text}
+          type={alert.type}
+          onClick={() => {
+            if (alert.type === "inputBox") {
+              console.log("InputBox confirmed"); // Debugging
+              console.log("PIN confirmed"); // Debugging
+              sendMoney(); // Send money after PIN is confirmed
+            } else {
+              closeAlert();
+            }
+          }}
+          onChange={(e) => {
+            if (alert.type === "inputBox" && alert.onChange) {
+              alert.onChange(e); // Handle input changes for inputBox
+            }
+          }}
+        />
+      )}
+
+      {/* Loader */}
+      {loading && (
+        <div className="fixed inset-0 flex items-center justify-center z-51">
+          <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
+          <Loading width="screen" />
+        </div>
       )}
     </>
   );

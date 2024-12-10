@@ -18,11 +18,12 @@ export default function () {
   const [alert, setAlert] = useState({
     visible: false,
     text: "",
-    type: "error" as "success" | "error" | "warning",
+    type: "error" as "success" | "error" | "warning" | "inputBox",
+    onClick: () => {},
   });
 
-  const showAlert = (text: string, type: "success" | "error" | "warning") => {
-    setAlert({ visible: true, text, type });
+  const showAlert = (text: string, type: "success" | "error" | "warning" | "inputBox",onClick : () => {}) => {
+    setAlert({ visible: true, text, type, onClick: onClick });
   };
 
   const closeAlert = () => {
@@ -35,8 +36,6 @@ export default function () {
     Cookies.remove("userName");
     Cookies.remove("id");
     Cookies.remove("balance");
-
-    return window.location.href = "/login";
   }
 
   return (
@@ -115,7 +114,9 @@ export default function () {
             </li>
             <li
               onClick={() => {
-                showAlert("Logged out successfully", "warning");
+                showAlert("Logged out successfully", "warning", () => {
+                  return window.location.href = "/login";
+                });
                 logout()}}
               className="flex items-center py-2 gap-3 group hover:shadow-white-glow px-2 border border-[#171717] hover:border hover:border-white rounded-md cursor-pointer"
             >
@@ -142,7 +143,7 @@ export default function () {
 
       {/* AlertBox */}
       {alert.visible && (
-        <AlertBox text={alert.text} type={alert.type} onClick={closeAlert} />
+        <AlertBox text={alert.text} type={alert.type} onClick={alert.onClick} onChange={() => {}}/>
       )}
     </>
   );

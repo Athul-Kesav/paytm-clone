@@ -8,7 +8,7 @@ export default function Loading({width} : {width? : string}) {
         {/* Inner Circle */}
         <div className="absolute w-10 h-10 border-4 border-t-transparent border-gray-200 rounded-full animate-spin-slow"></div>
       </div>
-      <div className="font-light text-xl font-against text-zinc-300 mt-3">
+      <div className=" absolute top-2/3 font-light text-xl font-against text-zinc-300 mt-3 z-100">
         Loading...
       </div>
     </div>
