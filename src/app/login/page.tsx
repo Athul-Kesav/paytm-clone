@@ -50,11 +50,14 @@ export default function Login() {
       if (error.response) {
         // Response was received but indicates an error
         const status = error.response.status;
-        if (status === 409) {
-          setError("Email is already in use");
+        if (status === 404) {
+          setError("User not Found");
         } else if (status === 400) {
           setError("Please enter a valid Email address and make sure the password is at least 8 characters long");
-        } else {
+        } else if (status === 401) {
+          setError("Incorrect Password");
+        }
+        else {
           setError("Something went wrong. Please try again later");
         }
       } else {

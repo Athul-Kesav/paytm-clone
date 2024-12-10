@@ -18,17 +18,20 @@ model User {
   email       String        @unique
   password    String
   currBal     Float
-  userName        String?
-  transaction Transaction[]
-  pin        Int @default(0)
-  investor    Boolean @default(false)
+  userName    String?
+  pin         Int           @default(0)
+  investor    Boolean       @default(false)
+
+  sentTransactions  Transaction[] @relation("SentTransactions")
+  receivedTransactions Transaction[] @relation("ReceivedTransactions")
 }
 
 model Transaction {
-  trans_id Int    @id @default(autoincrement())
-  user_id  Int
+  trans_id    Int    @id @default(autoincrement())
+  sender_id     Int
   receiver_id Int
-  amount   Float
-  type     String
-  user     User   @relation(fields: [user_id], references: [id])
+  amount      Float
+  type        String
+  sender      User   @relation("SentTransactions", fields: [sender_id], references: [id])
+  receiver    User   @relation("ReceivedTransactions", fields: [receiver_id], references: [id])
 }

@@ -124,6 +124,7 @@ export default function ContactPage() {
       Cookies.set("balance", (balance - amnt).toString());
     } catch (error: any) {
       // Error alert
+      console.log(error); // Debugging
       showAlert(
         error.response?.data?.message || "Transaction failed!",
         "error"
