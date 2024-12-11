@@ -5,6 +5,7 @@ import Paycard from "@/components/Paycard";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import axios from "axios";
 
 import electricity from "@/images/electricity.jpg";
 import insurance from "@/images/insurance.jpg";
@@ -14,7 +15,7 @@ import ExpenseChart from "@/components/ExpenseChart";
 import Menubar from "@/components/Menubar";
 
 interface User {
-  id : string;
+  id: string;
   userName: string | null;
   balance: number;
 }
@@ -29,9 +30,11 @@ export default function () {
 
   useEffect(() => {
     const details = {
-      id : Cookies.get("id")?? "",
+      id: Cookies.get("id") ?? "",
       userName: Cookies.get("userName") ?? "",
-      balance: Cookies.get("balance") ? parseFloat(Cookies.get("balance") ?? "") : 0,
+      balance: Cookies.get("balance")
+        ? parseFloat(Cookies.get("balance") ?? "")
+        : 0,
     };
     setUser(details);
   }, []);
@@ -44,7 +47,9 @@ export default function () {
       <div className="h-full grid col-span-full md:col-span-6 grid-rows-5 gap-3">
         <div className="row-span-2 grid grid-cols-5 gap-3">
           <div className="col-span-full border border-zinc-300 md:p-7 sm:p-5 p-3 flex flex-col md:col-span-3 rounded-lg">
-            <div className="h-fit mb-6 font-against text-3xl">Current Balance</div>
+            <div className="h-fit mb-6 font-against text-3xl">
+              Current Balance
+            </div>
             <div className="h-full flex flex-col px-2">
               <div className="font-against text-7xl py-1">
                 <span className="font-montserrat">₹</span>
@@ -52,7 +57,44 @@ export default function () {
               </div>
               <div className="font-montserrat text-zinc-300 text-lg leading-tight my-2">
                 Last updated <br />
-                <span className="font-mono text-sm">3 minutes ago</span>
+                <span className="font-mono text-sm flex items-center">
+                  3 minutes ago
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2"
+                    stroke="currentColor"
+                    className="size-10 px-3 cursor-pointer refresh-btn"
+                    onClick={async () => {
+                      const res = await axios.post("/api/user/details", {
+                        data: {
+
+                          id: Number(Cookies.get("id")),
+                        }
+                        
+                      });
+                      const data = res.data as {
+                        id: number;
+                        userName: string | null;
+                        currBal: number;
+                      };
+                      Cookies.set("balance", (data.currBal.toString() ?? "0"));
+                      const svgElement =
+                        document.querySelector<SVGElement>(".refresh-btn");
+                      if (svgElement) {
+                        svgElement.style.transform = "rotate(360deg)";
+                        
+                      }
+                    }}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
+                    />
+                  </svg>
+                </span>
               </div>
               <div className=" flex items-end">
                 <div className="items-center flex justify-between relative w-full">
@@ -120,11 +162,7 @@ export default function () {
                 <Paycard text="LPG" img={gas} onClick={makePayment} />
               </div>
               <div className="col-span-1 row-span-1 flex">
-                <Paycard
-                  text="Recharge"
-                  img={mobile}
-                  onClick={makePayment}
-                />
+                <Paycard text="Recharge" img={mobile} onClick={makePayment} />
               </div>
             </div>
           </div>

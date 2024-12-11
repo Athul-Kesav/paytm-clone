@@ -35,7 +35,7 @@ export default function ContactPage() {
   const [amnt, setAmnt] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [pin, setPin] = useState<number>(0);
-  const [pinConfirmed, setPinConfirmed] = useState(false); // Track if PIN is confirmed
+  //const [pinConfirmed, setPinConfirmed] = useState(false); // Track if PIN is confirmed
   const [alert, setAlert] = useState<AlertState>({
     visible: false,
     text: "",
@@ -211,7 +211,7 @@ export default function ContactPage() {
         {/* Transaction Section */}
         <div className=" md:col-span-4 col-span-full h-full w-auto rounded-lg p-4 flex flex-col align-middle border border-zinc-700">
           {selectedContact === null ? (
-            <div className="text-3xl font-against">Transaction Details</div>
+            <div className="text-3xl font-against">Payment Details</div>
           ) : (
             <div className="grid grid-rows-7 w-full h-full grid-cols-2">
               <div className="row-span-1 col-span-2 p-4 flex ">
@@ -246,7 +246,7 @@ export default function ContactPage() {
                     onClick={() => {
                       // Reset the PIN and confirmation state
                       setPin(0);
-                      setPinConfirmed(false);
+                      //setPinConfirmed(false);
 
                       // Wait for the PIN confirmation
 
@@ -256,7 +256,7 @@ export default function ContactPage() {
                         type: "inputBox",
                         onChange: (e) => setPin(parseInt(e.target.value) || 0),
                         onClick: () => {
-                          setPinConfirmed(true); // Set confirmation state
+                          //setPinConfirmed(true); // Set confirmation state
                           closeAlert(); // Close alert box
                         },
                       });

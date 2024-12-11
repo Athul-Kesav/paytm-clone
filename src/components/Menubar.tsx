@@ -11,8 +11,8 @@ export default function () {
   useEffect(() => {
     const username = Cookies.get("username");
     const decodedUser = decodeURIComponent(username || ""); // Decode URL-encoded string
-      const cleanUsername = decodedUser.replace(/^"|"$/g, ""); // Remove surrounding quotes
-      setUsername(cleanUsername);
+    const cleanUsername = decodedUser.replace(/^"|"$/g, ""); // Remove surrounding quotes
+    setUsername(cleanUsername);
   }, []);
 
   const [alert, setAlert] = useState({
@@ -22,14 +22,17 @@ export default function () {
     onClick: () => {},
   });
 
-  const showAlert = (text: string, type: "success" | "error" | "warning" | "inputBox",onClick : () => {}) => {
+  const showAlert = (
+    text: string,
+    type: "success" | "error" | "warning" | "inputBox",
+    onClick: () => {}
+  ) => {
     setAlert({ visible: true, text, type, onClick: onClick });
   };
 
-  const closeAlert = () => {
+  /* const closeAlert = () => {
     setAlert({ ...alert, visible: false });
-  };
-
+  }; */
 
   function logout() {
     axios.post("/api/user/logout");
@@ -54,7 +57,7 @@ export default function () {
               clipRule="evenodd"
             />
           </svg>
-          <span className="px-3">{username.split(" ")[0]}</span>
+          <span className="px-3 hidden lg:block">{username.split(" ")[0]}</span>
         </div>
         <div className="flex flex-col gap-1">
           <ul className="font-montserrat text-md text-zinc-300 gap-3 flex flex-col py-7">
@@ -74,11 +77,11 @@ export default function () {
                 <path d="M11.47 3.841a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.061l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 1 0 1.061 1.06l8.69-8.689Z" />
                 <path d="m12 5.432 8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a2.29 2.29 0 0 0 .091-.086L12 5.432Z" />
               </svg>
-              <a>Dashboard</a>
+              <a className="hidden lg:block">Dashboard</a>
             </li>
             <li
               onClick={() => {
-                window.location.href = "/user/transactions";
+                window.location.href = "/user/payment";
               }}
               className="flex items-center py-2 gap-3 group hover:shadow-white-glow px-2 border border-[#171717] hover:border hover:border-white rounded-md cursor-pointer"
             >
@@ -94,7 +97,29 @@ export default function () {
                   clipRule="evenodd"
                 />
               </svg>
-              <a>Transactions</a>
+              <a className="hidden lg:block">Payments</a>
+            </li>
+            <li
+              onClick={() => {
+                window.location.href = "/user/transactions";
+              }}
+              className="flex items-center py-2 gap-3 group hover:shadow-white-glow px-2 border border-[#171717] hover:border hover:border-white rounded-md cursor-pointer"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="size-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z"
+                />
+              </svg>
+              <a className="hidden lg:block">Transactions</a>
             </li>
             <li
               onClick={() => {
@@ -110,14 +135,15 @@ export default function () {
               >
                 <path d="M18.75 12.75h1.5a.75.75 0 0 0 0-1.5h-1.5a.75.75 0 0 0 0 1.5ZM12 6a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 12 6ZM12 18a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 12 18ZM3.75 6.75h1.5a.75.75 0 1 0 0-1.5h-1.5a.75.75 0 0 0 0 1.5ZM5.25 18.75h-1.5a.75.75 0 0 1 0-1.5h1.5a.75.75 0 0 1 0 1.5ZM3 12a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 3 12ZM9 3.75a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5ZM12.75 12a2.25 2.25 0 1 1 4.5 0 2.25 2.25 0 0 1-4.5 0ZM9 15.75a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5Z" />
               </svg>
-              <a>Settings</a>
+              <a className="hidden lg:block">Settings</a>
             </li>
             <li
               onClick={() => {
                 showAlert("Logged out successfully", "warning", () => {
-                  return window.location.href = "/login";
+                  return (window.location.href = "/login");
                 });
-                logout()}}
+                logout();
+              }}
               className="flex items-center py-2 gap-3 group hover:shadow-white-glow px-2 border border-[#171717] hover:border hover:border-white rounded-md cursor-pointer"
             >
               <svg
@@ -132,7 +158,7 @@ export default function () {
                   clipRule="evenodd"
                 />
               </svg>
-              <span>Logout</span>
+              <span className="hidden lg:block">Logout</span>
             </li>
           </ul>
         </div>
@@ -143,7 +169,12 @@ export default function () {
 
       {/* AlertBox */}
       {alert.visible && (
-        <AlertBox text={alert.text} type={alert.type} onClick={alert.onClick} onChange={() => {}}/>
+        <AlertBox
+          text={alert.text}
+          type={alert.type}
+          onClick={alert.onClick}
+          onChange={() => {}}
+        />
       )}
     </>
   );

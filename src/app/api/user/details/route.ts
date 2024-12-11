@@ -1,18 +1,23 @@
 import { PrismaClient } from "@prisma/client";
-import { userAgent } from "next/server";
+import { NextRequest} from "next/server";
 
-export async function GET(){
+export async function POST(req: NextRequest) {
 
     const prisma = new PrismaClient();
 
-    const response = await prisma.user.update({
+    const body = await req.json();
+    const id = body.data.id;
+
+    const response = await prisma.user.findUnique({
         where:{
-            id:13
+            id:id
         },
-        data:{
-            currBal:100000
+        select:{
+            id:true,
+            userName:true,
+            currBal:true
         }
-    })
+    });
 
     return Response.json(response);
 
