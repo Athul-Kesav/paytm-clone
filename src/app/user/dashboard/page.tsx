@@ -13,6 +13,7 @@ import gas from "@/images/gas.jpg";
 import mobile from "@/images/mobile.jpg";
 import ExpenseChart from "@/components/ExpenseChart";
 import Menubar from "@/components/Menubar";
+import { set } from "mongoose";
 
 interface User {
   id: string;
@@ -23,10 +24,58 @@ interface User {
 export default function () {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [updateTime, setUpdateTime] = useState<string>("Just Now");
+
+  
 
   const makePayment = () => {
     router.push("/user/payment");
   };
+
+  async function handleRefresh() {
+    
+    setLastUpdated(new Date());
+    if (!lastUpdated) return "never";
+
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - lastUpdated.getTime()) / 1000 / 60);
+
+    
+
+    const svgElement = document.querySelector<SVGElement>(".refresh-btn");
+    if (svgElement) {
+      svgElement.style.transform = "rotate(360deg)";
+      svgElement.style.transition = "transform 0.5s";
+    }
+    try {
+      const res = await axios.post("/api/user/details", {
+        data: {
+          id: Number(Cookies.get("userID")),
+        },
+      });
+      const data = res.data as {
+        id: number;
+        userName: string | null;
+        currBal: number;
+      };
+      console.log(data.currBal);
+      Cookies.set("balance", data.currBal.toString() ?? "0");
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    }
+
+    
+
+    if (diffInMinutes <= 1) {
+      setUpdateTime("Just now");
+    } else {
+      setUpdateTime(`${lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}`);
+    }
+
+    window.location.reload();
+    
+  }
 
   useEffect(() => {
     const details = {
@@ -36,8 +85,9 @@ export default function () {
         ? parseFloat(Cookies.get("balance") ?? "")
         : 0,
     };
+    //setLastUpdated(new Date());
     setUser(details);
-  }, []);
+  }, [lastUpdated]);
 
   return (
     <div className="h-screen w-screen grid grid-cols-7 gap-3 p-4 text-zinc-300 overflow-auto">
@@ -58,35 +108,15 @@ export default function () {
               <div className="font-montserrat text-zinc-300 text-lg leading-tight my-2">
                 Last updated <br />
                 <span className="font-mono text-sm flex items-center">
-                  3 minutes ago
+                  {updateTime}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth="2"
                     stroke="currentColor"
-                    className="size-10 px-3 cursor-pointer refresh-btn"
-                    onClick={async () => {
-                      const res = await axios.post("/api/user/details", {
-                        data: {
-
-                          id: Number(Cookies.get("id")),
-                        }
-                        
-                      });
-                      const data = res.data as {
-                        id: number;
-                        userName: string | null;
-                        currBal: number;
-                      };
-                      Cookies.set("balance", (data.currBal.toString() ?? "0"));
-                      const svgElement =
-                        document.querySelector<SVGElement>(".refresh-btn");
-                      if (svgElement) {
-                        svgElement.style.transform = "rotate(360deg)";
-                        
-                      }
-                    }}
+                    className="size-4 mx-3 cursor-pointer refresh-btn"
+                    onClick={handleRefresh}
                   >
                     <path
                       strokeLinecap="round"

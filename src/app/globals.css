@@ -18,6 +18,29 @@
   --foreground: #171717;
 }
 
+/* The entire scrollbar */
+::-webkit-scrollbar {
+  width: 7px; /* Width of the scrollbar */
+  height: 7px; /* Height of the scrollbar for horizontal scrolling */
+}
+
+/* The track (background of the scrollbar) */
+::-webkit-scrollbar-track {
+  background: #171717; /* Light gray background */
+  border-radius: 5px;
+}
+
+/* The handle (scroll thumb) */
+::-webkit-scrollbar-thumb {
+  background: #ededed; /* Gray color for the thumb */
+  border-radius: 5px;
+}
+
+/* Hover effect for the handle */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Darker gray when hovering */
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #131313;

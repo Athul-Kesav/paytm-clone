@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Transaction" ADD COLUMN     "trans_date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "isVerified" BOOLEAN NOT NULL DEFAULT false;

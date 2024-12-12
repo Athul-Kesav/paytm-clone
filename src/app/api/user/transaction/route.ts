@@ -5,52 +5,14 @@ import { TransactionSchema } from "@/validation/TransactionSchema";
 
 export async function PUT(req: NextRequest) {
 
-    const prisma = new PrismaClient();
-    //const test = await prisma.transaction.findFirst();
-    //console.log("Database Connection Test:", test);
-
-    try {
-        const body = await req.json();
-        //console.log("Request body:", body);
-        const { id, contactId } = body.data;
-        console.log("ID:", id);
-        //console.log("ConID:", contactId);
-        //console.log("ID type: ", typeof id);
-        // Validate the payload
-        if (!id || typeof id !== "number" || id <= 0) {
-            //console.log(!id, typeof id !== "number", id <= 0);
-            return NextResponse.json(
-                { message: "Invalid payload: 'id' must be a positive number" },
-                { status: 400 }
-            );
-        }
-
-        // Fetch user transactions
-        const userTransactions = await prisma.transaction.findMany({
-            where: {
-                OR: [
-                    { sender_id: id },
-                    { receiver_id: id }
-                ]
-            },
-        });
-
-        // Return the transactions
-        console.log("User transactions:", userTransactions);
-        return NextResponse.json({ userTransactions }, { status: 200 });
-    } catch (error) {
-        console.error("Error fetching user transactions:", error);
-        return NextResponse.json(
-            { message: "An error occurred while fetching transactions" },
-            { status: 500 }
-        );
-    } finally {
-        await prisma.$disconnect();
-    }
+    
 }
 
 export async function POST(req: NextRequest) {
     const prisma = new PrismaClient();
+
+    const timezone = "Asia/Kolkata";
+    const trans_date = new Date().toLocaleString("en-US", { timeZone: timezone });
 
     try {
         // Parse and validate body
@@ -130,6 +92,7 @@ export async function POST(req: NextRequest) {
                     },
                     amount: amount,
                     type: "transfer",
+                    trans_date: new Date(trans_date),
                 },
             }),
         ]);

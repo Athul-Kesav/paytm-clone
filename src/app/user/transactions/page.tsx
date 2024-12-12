@@ -46,6 +46,8 @@ export default function () {
     onClick: () => {},
   });
 
+  const user_id = Number(Cookies.get("userID"));
+
   const showAlert = (
     text: string,
     type: "success" | "error" | "warning" | "inputBox",
@@ -70,7 +72,7 @@ export default function () {
       try {
         const response = await axios.post<Contact[]>("/api/contacts", {
           data: {
-            id: Cookies.get("userID"),
+            id: Number(Cookies.get("userID")),
           },
         });
         setContacts(response.data);
@@ -93,12 +95,7 @@ export default function () {
       const id = Number(Cookies.get("userID"));
       console.log("ID:", id);
       try {
-        const response = await axios.put("/api/user/transaction", {
-          data: {
-            id,
-            contactId: selectedContact?.id,
-          },
-        });
+        const response = await axios.get("/api/user/details");
 
         const data = response.data as {
           userTransactions: TransactionCardProps[];
@@ -109,7 +106,7 @@ export default function () {
           showAlert("No transactions found", "warning", closeAlert);
         } */
       } catch (error) {
-        console.error("Error fetching transactions:", error);
+        console.log("Error fetching transactions:", error);
       }
     }
 
@@ -136,26 +133,42 @@ export default function () {
               <div className="row-span-6 col-span-2 flex flex-col gap-3 overflow-auto h-full max-h-[40rem]">
                 {loading ? (
                   <Loading width="full" />
-                ) : transactions.length === 0 ? (
-                  <div className="text-lg font-mono text-zinc-300">
-                    No transactions found
-                  </div>
                 ) : (
-                  transactions.map((transaction) => (
-                    <div
-                      key={transaction.trans_id}
-                      className="flex flex-col gap-2 p-2"
-                    >
-                      <TransactionCard
-                        trans_id={transaction.trans_id}
-                        sender_id={transaction.sender_id}
-                        receiver_id={transaction.receiver_id}
-                        amount={transaction.amount}
-                        type={transaction.type}
-                        user_id={Number(Cookies.get("userID"))}
-                      />
-                    </div>
-                  ))
+                  (() => {
+                    const filteredTransactions = transactions.filter(
+                      (transaction) =>
+                        transaction.receiver_id === selectedContact?.id ||
+                        transaction.sender_id === selectedContact?.id
+                    );
+
+                    return filteredTransactions.length === 0 ? (
+                      <div className="text-lg font-mono text-zinc-300">
+                        No transactions found
+                      </div>
+                    ) : (
+                      filteredTransactions.map((transaction) => (
+                        <div
+                          key={transaction.trans_id}
+                          className={`flex flex-col gap-2 p-2 ${
+                            user_id === transaction.receiver_id
+                              ? "flex-row-reverse"
+                              : "flex-row"
+                          }`}
+                        >
+                          
+                          <TransactionCard
+                            trans_id={transaction.trans_id}
+                            sender_id={transaction.sender_id}
+                            receiver_id={transaction.receiver_id}
+                            amount={transaction.amount}
+                            type={transaction.type}
+                            user_id={user_id}
+                            trans_date={transaction.trans_date}
+                          />
+                        </div>
+                      ))
+                    );
+                  })()
                 )}
               </div>
             </div>
